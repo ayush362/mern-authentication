@@ -30,12 +30,13 @@ const LoginScreen = () => {
         e.preventDefault();
         try {
             const { res } = await login({ email, password }).unwrap();
-            dispatch(setCredentials({ ...res }));
+            dispatch(setCredentials({ email, password }));
             navigate("/");
         } catch (err) {
             toast.error(err?.data?.message || err.error);
         }
     };
+    console.log(userInfo);
     return (
         <FormContainer>
             <h1>Sign In</h1>
@@ -59,7 +60,7 @@ const LoginScreen = () => {
                     ></Form.Control>
                 </Form.Group>
 
-                {isLoading && <Loader/>}
+                {isLoading && <Loader />}
                 <Button type="submit" variant="primary" className="mt-3">
                     Sign In
                 </Button>
