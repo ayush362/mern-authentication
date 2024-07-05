@@ -1,9 +1,10 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
+
 // @desc Auth user/set token
 // route POST /api/users/auth
-// @acces Public
+// @access Public
 const authUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -14,6 +15,8 @@ const authUser = asyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            role: user.role,
+            courses: user.courses,
         });
     } else {
         res.status(400);
@@ -23,20 +26,23 @@ const authUser = asyncHandler(async (req, res) => {
 
 // @desc Register a new user
 // route POST /api/users
-// @acces Public
+// @access Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, role, courses } = req.body;
 
     const userExists = await User.findOne({ email });
 
     if (userExists) {
         res.status(400);
-        throw new Error("User already exist");
+        throw new Error("User already exists");
     }
+    
     const user = await User.create({
         name,
         email,
         password,
+        role,
+        courses,
     });
 
     if (user) {
@@ -45,6 +51,8 @@ const registerUser = asyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            role: user.role,
+            courses: user.courses,
         });
     } else {
         res.status(400);
@@ -53,37 +61,41 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 // @desc Logout user
-// route POST /api/users/lgout
-// @acces Public
+// route POST /api/users/logout
+// @access Public
 const logoutUser = asyncHandler(async (req, res) => {
     res.cookie("jwt", "", {
         httpOnly: true,
         expires: new Date(0),
     });
-    res.status(200).json({ message: "logout user" });
+    res.status(200).json({ message: "Logged out user" });
 });
 
 // @desc Get user profile
-// route Get /api/users/profile
-// @acces private
+// route GET /api/users/profile
+// @access Private
 const getUserProfile = asyncHandler(async (req, res) => {
     const user = {
         _id: req.user._id,
         name: req.user.name,
         email: req.user.email,
+        role: req.user.role,
+        courses: req.user.courses,
     };
     res.status(200).json(user);
 });
 
 // @desc Update user profile
 // route PUT /api/users/profile
-// @acces private
+// @access Private
 const updateUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
         user.name = req.body.name || user.name;
         user.email = req.body.email || user.email;
+        user.role = req.body.role || user.role;
+        user.courses = req.body.courses || user.courses;
 
         if (req.body.password) {
             user.password = req.body.password;
@@ -95,10 +107,12 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
+            role: updatedUser.role,
+            courses: updatedUser.courses,
         });
     } else {
         res.status(404);
-        throw new Error("user not found");
+        throw new Error("User not found");
     }
 });
 

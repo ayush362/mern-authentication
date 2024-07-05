@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import FormContainer from '../components/FormContainer';
 import Loader from '../components/Loader';
-// import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRegisterMutation } from '../slices/usersApiSlice';
@@ -14,6 +13,7 @@ const RegisterScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('student');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const RegisterScreen = () => {
       toast.error('Passwords do not match');
     } else {
       try {
-        const res = await register({ name, email, password }).unwrap();
+        const res = await register({ name, email, password, role }).unwrap();
         dispatch(setCredentials({ ...res }));
         navigate('/');
       } catch (err) {
@@ -43,6 +43,7 @@ const RegisterScreen = () => {
       }
     }
   };
+
   return (
     <FormContainer>
       <h1>Register</h1>
@@ -84,6 +85,19 @@ const RegisterScreen = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           ></Form.Control>
+        </Form.Group>
+
+        <Form.Group className='my-2' controlId='role'>
+          <Form.Label>Role</Form.Label>
+          <Form.Control
+            as='select'
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
+            <option value='student'>Student</option>
+            <option value='teacher'>Teacher</option>
+            <option value='admin'>Admin</option>
+          </Form.Control>
         </Form.Group>
 
         <Button type='submit' variant='primary' className='mt-3'>
