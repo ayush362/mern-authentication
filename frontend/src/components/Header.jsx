@@ -38,7 +38,7 @@ const Header = () => {
                             {userInfo ? (
                                 <>
                                     <NavDropdown
-                                        title={userInfo.email}
+                                        title={userInfo.name}
                                         id="username"
                                     >
                                         <LinkContainer to="/profile">
